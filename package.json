@@ -1,0 +1,17 @@
+{
+  "author": "Matt Godbolt <matt@godbolt.org>",
+  "name": "ccs",
+  "description": "Cascading configuration system",
+  "version": "0.0.1",
+  "engines": {
+    "node": "0.10.x"
+  },
+  "main": "lib/peg",
+  "dependencies": {
+      "pegjs": "0.8.x"
+  },
+  "devDependencies": {
+      "mocha": "1.18.x"
+  },
+  "license": "BSD-2-Clause"
+}
