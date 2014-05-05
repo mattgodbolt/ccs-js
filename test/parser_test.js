@@ -36,11 +36,25 @@ describe('Parser', function(){
             assert.equal(true, parser.parse("elem.id {}"));
             assert.equal(true, parser.parse("elem.id {prop = 'val'}"));
         });
-        it('should parse properties in nested defs', function(){
+        it('should parse properties in nested defs - int', function(){
             assert.equal(true, parser.parse("a.class.class blah > elem.id { prop = 43 }"));
+        });
+        it('should parse properties in nested defs - float', function(){
             assert.equal(true, parser.parse("a.class.class blah > elem.id { prop = 2.3 }"));
+        });
+        it('should parse properties in nested defs - string', function(){
             assert.equal(true, parser.parse("a.class.class blah > elem.id { prop = \"val\" }"));
+        });
+        it('should parse properties in nested defs - hex', function(){
             assert.equal(true, parser.parse("a.class.class blah > elem.id { prop = 0xAB12 }"));
+        });
+        it('should parse properties in nested defs - bool', function(){
+            assert.equal(true, parser.parse("a.class.class blah > elem.id { prop = true }"));
+            assert.equal(true, parser.parse("a.class.class blah > elem.id { prop = false }"));
+        });
+        it('should fail to parse duplicate class suffixes', function(){
+            assert.equal(false, parser.parse("a.class.class blah > elem. id {prop=2.3}"));
+            assert.equal(false, parser.parse("a.class.class blah > elem.id { prop = false }"));
         });
     })
 })
