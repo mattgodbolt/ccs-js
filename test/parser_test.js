@@ -1,6 +1,6 @@
 var parserLib = require('../lib/ccs').parser;
 
-var assert = require("assert")
+var assert = require("assert");
 describe('Parser', function(){
     describe('BasicPhrases', function(){
         var parser = new parserLib.Parser();
@@ -22,59 +22,28 @@ describe('Parser', function(){
         it('should parse nested /* comments */', function(){
             assert.equal(true, parser.parse("/* /* this isn't nice */ but is legal */"));
         });
+        it('should accept import files', function(){
+            assert.equal(true, parser.parse("@import 'file'"));
+        });
+        it('should accept context lines', function(){
+            assert.equal(true, parser.parse("@context (foo.bar > baz)"));
+            assert.equal(true, parser.parse("@context (foo x.bar > baz >)"));
+        });
+        it('should accept property defs', function(){
+            assert.equal(true, parser.parse("prop = 'val'"));
+        });
+        it('should accept simple elem defs', function(){
+            assert.equal(true, parser.parse("elem.id {}"));
+            assert.equal(true, parser.parse("elem.id {prop = 'val'}"));
+        });
+        it('should parse properties in nested defs', function(){
+            assert.equal(true, parser.parse("a.class.class blah > elem.id { prop = 43 }"));
+            assert.equal(true, parser.parse("a.class.class blah > elem.id { prop = 2.3 }"));
+            assert.equal(true, parser.parse("a.class.class blah > elem.id { prop = \"val\" }"));
+            assert.equal(true, parser.parse("a.class.class blah > elem.id { prop = 0xAB12 }"));
+        });
     })
 })
-//#include <stdexcept>
-//
-//#include <gtest/gtest.h>
-//
-//#include "parser/ast.h"
-//#include "parser/parser.h"
-//
-//using namespace ccs;
-//
-//namespace {
-//
-//struct P {
-//  Parser parser;
-//  P() : parser(CcsLogger::StdErr) {}
-//  bool parse(const std::string &input) {
-//    std::istringstream str(input);
-//    ast::Nested ast;
-//    return parser.parseCcsStream("<literal>", str, ast);
-//  }
-//
-//  template<typename T>
-//  bool parseAndReturnValue(const std::string &input, T &out) {
-//    std::istringstream str(input);
-//    ast::Nested ast;
-//    if (!parser.parseCcsStream("<literal>", str, ast)) return false;
-//    if (ast.rules_.size() != 1) return false;
-//    ast::PropDef *propDef = boost::get<ast::PropDef>(&ast.rules_[0]);
-//    if (!propDef) return false;
-//    T *v = boost::get<T>(&propDef->value_.val_);
-//    if (!v) return false;
-//    out = *v;
-//    return true;
-//  }
-//};
-//
-//}
-//
-//TEST(ParserTest, BasicPhrases) {
-//  P parser;
-//  EXPECT_TRUE(parser.parse(""));
-//  EXPECT_TRUE(parser.parse("\n"));
-//  EXPECT_TRUE(parser.parse("@import 'file'"));
-//  EXPECT_TRUE(parser.parse("@context (foo.bar > baz)"));
-//  EXPECT_TRUE(parser.parse("@context (foo x.bar > baz >)"));
-//  EXPECT_TRUE(parser.parse("prop = 'val'"));
-//  EXPECT_TRUE(parser.parse("elem.id {}"));
-//  EXPECT_TRUE(parser.parse("elem.id {prop = 'val'}"));
-//  EXPECT_TRUE(parser.parse("a.class.class blah > elem.id {prop=43}"));
-//  EXPECT_TRUE(parser.parse("a.class.class blah > elem.id {prop=2.3}"));
-//  EXPECT_TRUE(parser.parse("a.class.class blah > elem.id {prop=\"val\"}"));
-//  EXPECT_TRUE(parser.parse("a.class.class blah > elem.id {prop=0xAB12}"));
 //  EXPECT_FALSE(parser.parse("a.class.class blah > elem. id {prop=2.3}"));
 //  EXPECT_FALSE(parser.parse("a.class. class > elem.id {prop=\"val\"}"));
 //  EXPECT_FALSE(parser.parse("blah"));
