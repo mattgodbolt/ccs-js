@@ -140,7 +140,9 @@ describe('Parser', function(){
     describe('Integers', function(){
         var parsed = parser.parse("value = 100");
         assert.equal(parsed.rules.length, 1);
-        console.log(parsed.rules[0]);
+        var val = parsed.rules[0].value;
+        assert.equal(val.type, "long");
+        assert.equal(val.value, 100);
     });
 });
 //TEST(ParserTest, ParsesIntegers) {
