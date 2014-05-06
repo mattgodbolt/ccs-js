@@ -7,24 +7,10 @@ describe('Parser', function(){
     function F(a) { assert.throws(function(){parser.parse(a);}); }
 
     describe('BasicPhrases', function(){
-        var parser = new parserLib.Parser();
         it('should parse empty strings', function(){
             P("");
             P("   ");
             P("\n\t ");
-        });
-        it('should parse // comments', function(){
-            P("// this is a comment");
-            P("// this\n//is\n//many\n//comments");
-            P("  // comment and whitespace");
-        });
-        it('should parse /* comments */', function(){
-            P("/* this is a comment */");
-            P("/* this\nis\na\ncomment*/");
-            P("  /* comment and whitespace */  ");
-        });
-        it('should parse nested /* comments */', function(){
-            P("/* /* this isn't nice */ but is legal */");
         });
         it('should accept import files', function(){
             P("@import 'file'");
@@ -76,27 +62,44 @@ describe('Parser', function(){
         it('should parse two properties', function(){
             P("elem.id { prop = 'val'; prop2 = 31337 }");
         });
-    })
-})
-//  EXPECT_TRUE(parser.parse("elem.id { prop = 'val'; prop2 = 31337 }");
-//  EXPECT_TRUE(parser.parse("prop.'val'/a.foo/p.'hmm' { p = 1; }");
-//  EXPECT_TRUE(parser.parse("a b > c d {p=1}");
-//  EXPECT_TRUE(parser.parse("(a > b) (c > d) {p=1}");
-//  EXPECT_TRUE(parser.parse("a > (b c) > d {p=1}");
-//  EXPECT_TRUE(parser.parse("a.\"foo\" 'bar' {'test' = 1};");
-//}
-//
-//TEST(ParserTest, Comments) {
-//  P parser;
-//  EXPECT_TRUE(parser.parse("// single line comment\n");
-//  EXPECT_TRUE(parser.parse("// single line comment nonl");
-//  EXPECT_TRUE(parser.parse("/* multi-line comment */");
-//  EXPECT_TRUE(parser.parse("prop = /* comment */ 'val'");
-//  EXPECT_TRUE(parser.parse("prop = /* comment /*nest*/ more */ 'val'");
-//  EXPECT_TRUE(parser.parse("elem.id /* comment */ {prop = 'val'}");
-//  EXPECT_TRUE(parser.parse("// comment\nelem { prop = 'val' prop = 'val' }");
-//}
-//
+        it('should parse simultaneous constraints', function(){
+            P("prop.'val'/a.foo/p.'hmm' { p = 1; }");
+        });
+        it('should parse ancestor constaints', function(){
+            P("a b > c d {p=1}");
+        });
+        it('should parse parentheses', function() {
+            P("(a > b) (c > d) {p=1}");
+            P("a > (b c) > d {p=1}");
+        });
+        it('should handle both quote types', function() {
+            P("a.\"foo\" 'bar' {'test' = 1};");
+        });
+    });
+
+    describe("Comments", function() {
+        it('should parse // comments', function(){
+            P("// this is a comment");
+            P("// this\n//is\n//many\n//comments");
+            P("  // comment and whitespace");
+        });
+        it('should parse /* comments */', function(){
+            P("/* this is a comment */");
+            P("/* this\nis\na\ncomment*/");
+            P("  /* comment and whitespace */  ");
+        });
+        it('should parse nested /* comments */', function(){
+            P("/* /* this isn't nice */ but is legal */");
+        });
+        it('should handle comments in elements', function(){
+            P("prop = /* comment */ 'val'");
+            P("prop = /* comment /*nest*/ more */ 'val'");
+            P("elem.id /* comment */ {prop = 'val'}");
+            P("// comment\nelem { prop = 'val' prop = 'val' }");
+        });
+    });
+});
+
 //TEST(ParserTest, UglyAbutments) {
 //  P parser;
 //  EXPECT_FALSE(parser.parse("foo {p = 1x = 2}");
