@@ -98,38 +98,51 @@ describe('Parser', function(){
             P("// comment\nelem { prop = 'val' prop = 'val' }");
         });
     });
-});
 
-//TEST(ParserTest, UglyAbutments) {
-//  P parser;
-//  EXPECT_FALSE(parser.parse("foo {p = 1x = 2}");
-//  EXPECT_FALSE(parser.parse("foo {p = 'x'x = 2}");
-//  EXPECT_FALSE(parser.parse("value=12env.foo {}");
-//  EXPECT_TRUE(parser.parse("foo {p = 1 x = 2}");
-//  EXPECT_TRUE(parser.parse("foo{p=1;x=2}");
-//  EXPECT_FALSE(parser.parse("foo{@overridep=1}");
-//  EXPECT_TRUE(parser.parse("foo{@override /*hi*/ p=1}");
-//  EXPECT_FALSE(parser.parse("@import'asdf'");
-//  EXPECT_FALSE(parser.parse("@constrainasdf");
-//  EXPECT_TRUE(parser.parse(
-//      "@import 'asdf' \n ; \n @constrain asdf \n ; @import 'foo'  ");
-//  EXPECT_TRUE(parser.parse("@import /*hi*/ 'asdf'");
-//}
-//
-//TEST(ParserTest, SelectorSections) {
-//  P parser;
-//  EXPECT_TRUE(parser.parse("foo > { bar {}}");
-//  EXPECT_TRUE(parser.parse("foo > { bar > baz {}}");
-//  EXPECT_TRUE(parser.parse("bar > baz {}");
-//  EXPECT_TRUE(parser.parse("bar baz {}");
-//}
-//
-//TEST(ParserTest, Constraints) {
-//  P parser;
-//  EXPECT_TRUE(parser.parse("a.b: @constrain a.c");
-//}
-//
-//
+    describe("UglyAbutments", function(){
+        it('should fail to parse these abutments', function(){
+            F("foo {p = 1x = 2}");
+            F("foo {p = 'x'x = 2}");
+            F("value=12env.foo {}");
+            P("foo {p = 1 x = 2}");
+            P("foo{p=1;x=2}");
+        });
+        it('should handle override abutments', function(){
+            F("foo{@overridep=1}");
+            P("foo{@override/*hi*/p=1}");
+            P("foo{@override/*hi*/p=1}");
+        });
+        it('should handle import abutments', function(){
+            F("@import'asdf'");
+            P("@import /*hi*/ 'asdf'");
+        });
+        it('should handle constrain abutments', function(){
+            F("@constrainasdf");
+            P("@import 'asdf' \n ; \n @constrain asdf \n ; @import 'foo'  ");
+        }); 
+    });
+
+    describe('Selector sections', function(){
+        it('should parse these', function(){
+            P("foo > { bar {}}");
+            P("foo > { bar > baz {}}");
+            P("bar > baz {}");
+            P("bar baz {}");
+        });
+    });
+
+    describe('Constraints', function(){
+        it('should parse these', function(){
+            P("a.b: @constrain a.c");
+        });
+    });
+
+    describe('Integers', function(){
+        var parsed = parser.parse("value = 100");
+        assert.equal(parsed.rules.length, 1);
+        console.log(parsed.rules[0]);
+    });
+});
 //TEST(ParserTest, ParsesIntegers) {
 //  P parser;
 //  int64_t v64 = 0;
