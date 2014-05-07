@@ -137,48 +137,62 @@ describe('Parser', function(){
         });
     });
 
-    describe('Integers', function(){
-        var parsed = parser.parse("value = 100");
+    function expectValue(text, type, expected) {
+        var parsed = parser.parse(text);
         assert.equal(parsed.rules.length, 1);
         var val = parsed.rules[0].value;
-        assert.equal(val.type, "long");
-        assert.equal(val.value, 100);
+        assert.equal(val.type, type);
+        assert.equal(val.value, expected);
+    }
+    function L(text, expected) { expectValue(text, "long", expected); }
+    function D(text, expected) { expectValue(text, "double", expected); }
+
+    describe('Parsing values', function(){
+        it('should parse integers', function(){
+            L("value = 100", 100);
+            L("value = 0", 0);
+            L("value = -0", 0);
+            L("value = -100", -100);
+            F("value = ---1");
+        });
+
+        it('should parse hex integers', function(){
+            L("value = 0x123", 0x123);
+            L("value = 0x0", 0x0);
+            L("value = 0x0", 0x0);
+            F("value = 0x");
+            F("value = 0x0x0");
+        });
+
+        it('should parse doubles', function(){
+            D("value = 100.", 100.0);
+            D("value = 100.0000", 100.0);
+            D("value = 0.0000", 0.0);
+            D("value = .1", 0.1);
+            D("value = -0.0000", 0.0);
+            D("value = 1.0e-2", 0.01);
+            D("value = 1.0E-2", 0.01);
+            D("value = -1.0e-2", -0.01);
+            D("value = -1.0E-2", -0.01);
+            D("value = .1e-2", 0.001);
+            D("value = .1E-2", 0.001);
+            D("value = -.1e-2", -0.001);
+            D("value = -.1E-2", -0.001);
+            D("value = 1e2", 100);
+            D("value = 1E2", 100);
+        });
+
+        it('should parse bools', function(){
+            expectValue("value = true", "bool", true);
+            expectValue("value = false", "bool", false);
+            F("value = flase");
+            F("value = truee");
+        });
+
+        it('should parse strings', function(){
+            expectValue("value = 'a string'", "string", "a string");
+            expectValue("value = \"a string\"", "string", "a string");
+            F("value = \"should not work'");
+        });
     });
 });
-//TEST(ParserTest, ParsesIntegers) {
-//  P parser;
-//  int64_t v64 = 0;
-//  ASSERT_TRUE(parser.parseAndReturnValue("value = 100", v64));
-//  EXPECT_EQ(100, v64);
-//  ASSERT_TRUE(parser.parseAndReturnValue("value = 0", v64));
-//  EXPECT_EQ(0, v64);
-//  ASSERT_TRUE(parser.parseAndReturnValue("value = -0", v64));
-//  EXPECT_EQ(0, v64);
-//  ASSERT_TRUE(parser.parseAndReturnValue("value = -100", v64));
-//  EXPECT_EQ(-100, v64);
-//  ASSERT_FALSE(parser.parseAndReturnValue("value = 100.123", v64));
-//  ASSERT_FALSE(parser.parseAndReturnValue("value = '100", v64));
-//}
-//
-//TEST(ParserTest, ParsesDoubles) {
-//  P parser;
-//  double vDouble = 0.0;
-//  ASSERT_TRUE(parser.parseAndReturnValue("value = 100.", vDouble));
-//  EXPECT_DOUBLE_EQ(100., vDouble);
-//  ASSERT_TRUE(parser.parseAndReturnValue("value = 100.0000", vDouble));
-//  EXPECT_DOUBLE_EQ(100., vDouble);
-//  ASSERT_TRUE(parser.parseAndReturnValue("value = 0.0000", vDouble));
-//  EXPECT_DOUBLE_EQ(0., vDouble);
-//  ASSERT_TRUE(parser.parseAndReturnValue("value = -0.0000", vDouble));
-//  EXPECT_DOUBLE_EQ(0., vDouble);
-//  ASSERT_TRUE(parser.parseAndReturnValue("value = 1.0e-2", vDouble));
-//  EXPECT_DOUBLE_EQ(0.01, vDouble);
-//  ASSERT_TRUE(parser.parseAndReturnValue("value = 1.0E-2", vDouble));
-//  EXPECT_DOUBLE_EQ(0.01, vDouble);
-//  ASSERT_TRUE(parser.parseAndReturnValue("value = 1e-2", vDouble));
-//  EXPECT_DOUBLE_EQ(0.01, vDouble);
-//  ASSERT_TRUE(parser.parseAndReturnValue("value = 1E-2", vDouble));
-//  EXPECT_DOUBLE_EQ(0.01, vDouble);
-//  ASSERT_FALSE(parser.parseAndReturnValue("value = 100", vDouble));
-//  ASSERT_FALSE(parser.parseAndReturnValue("value = '100.0", vDouble));
-//}
