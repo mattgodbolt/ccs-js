@@ -140,6 +140,7 @@ describe('Parser', function(){
     function expectValue(text, type, expected) {
         var parsed = parser.parse(text);
         assert.equal(parsed.rules.length, 1);
+        assert.equal(parsed.rules[0].type, "property");
         var val = parsed.rules[0].value;
         assert.equal(val.type, type);
         assert.equal(val.value, expected);
