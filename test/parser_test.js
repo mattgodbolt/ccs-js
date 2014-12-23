@@ -1,10 +1,11 @@
 var parserLib = require('../lib/ccs').parser;
 
 var assert = require("assert");
+var util = require('util');
 var parser = new parserLib.Parser();
 describe('Parser', function () {
     function P(a) {
-        parser.parse(a);
+        return parser.parse(a);
     }
 
     function F(a) {
@@ -129,12 +130,32 @@ describe('Parser', function () {
         });
     });
 
+    function SS(v) {
+        switch (v.type) {
+            case "singleStep":
+                return v;
+            case "nested":
+                return SS(v.selector);
+            case "selector":
+                return SS(v.leaf);
+            default:
+                return SS(v.leaves[0]);
+        }
+        throw new Error("unknown type " + v.type);
+    }
+
     describe('Selector sections', function () {
         it('should parse these', function () {
             P("foo > { bar {}}");
             P("foo > { bar > baz {}}");
             P("bar > baz {}");
             P("bar baz {}");
+        });
+        it('should parse selectors with dots', function () {
+            assert.deepEqual(SS(P("moo {}").rules[0]).vals, null);
+            assert.deepEqual(SS(P("moo.a {}").rules[0]).vals, ["a"]);
+            assert.deepEqual(SS(P("moo.a {}").rules[0]).vals, ["a"]);
+            assert.deepEqual(SS(P("moo.a.b.c {}").rules[0]).vals, ["a", "b", "c"]);
         });
     });
 
@@ -207,6 +228,13 @@ describe('Parser', function () {
             expectValue("value = 'a string'", "string", "a string");
             expectValue("value = \"a string\"", "string", "a string");
             F("value = \"should not work'");
+        });
+    });
+
+    describe('Regressions', function () {
+        it('should parse without error', function () {
+            console.log(util.inspect(
+                parser.parse("moo.a, moo.b { @constrain env.noose a { foo = true } }"), {depth: null}));
         });
     });
 });
